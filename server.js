@@ -8,23 +8,49 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 10000;
 
+/*
+|--------------------------------------------------------------------------
+| Services
+|--------------------------------------------------------------------------
+*/
+
 const stripe = process.env.STRIPE_SECRET_KEY
   ? Stripe(process.env.STRIPE_SECRET_KEY)
   : null;
 
+/*
+|--------------------------------------------------------------------------
+| Basic middleware
+|--------------------------------------------------------------------------
+*/
+
 app.use(cors());
-// Paystack webhook
+
+/*
+|--------------------------------------------------------------------------
+| PAYSTACK WEBHOOK
+|--------------------------------------------------------------------------
+| IMPORTANT:
+| This route must use express.raw() so Paystack's signature can be verified.
+|--------------------------------------------------------------------------
+*/
+
 app.post(
   "/api/paystack/webhook",
   express.raw({ type: "application/json" }),
   (req, res) => {
     try {
       const crypto = require("crypto");
+
       const secretKey = process.env.PAYSTACK_SECRET_KEY;
       const signature = req.headers["x-paystack-signature"];
 
       if (!secretKey || !signature) {
-        return res.status(401).json({ received: false });
+        console.error("Paystack webhook: missing secret key or signature");
+        return res.status(401).json({
+          received: false,
+          error: "Unauthorized"
+        });
       }
 
       const expectedSignature = crypto
@@ -33,7 +59,12 @@ app.post(
         .digest("hex");
 
       if (signature !== expectedSignature) {
-        return res.status(401).json({ received: false });
+        console.error("Paystack webhook: invalid signature");
+
+        return res.status(401).json({
+          received: false,
+          error: "Invalid signature"
+        });
       }
 
       const event = JSON.parse(req.body.toString("utf8"));
@@ -45,371 +76,579 @@ app.post(
           "Paystack payment successful:",
           event.data?.reference
         );
+
+        console.log(
+          "Amount:",
+          event.data?.amount
+        );
+
+        console.log(
+          "Customer:",
+          event.data?.customer?.email
+        );
       }
 
-      res.sendStatus(200);
+      return res.sendStatus(200);
+
     } catch (error) {
-      console.error("Paystack webhook error:", error.message);
-      res.sendStatus(400);
+      console.error(
+        "Paystack webhook error:",
+        error.message
+      );
+
+      return res.sendStatus(400);
     }
   }
 );
-// Stripe webhook needs the raw request body.
-// Keep this route BEFORE express.json().
+
+/*
+|--------------------------------------------------------------------------
+| STRIPE WEBHOOK
+|--------------------------------------------------------------------------
+| Kept for compatibility with the previous Global Estates setup.
+|--------------------------------------------------------------------------
+*/
+
 app.post(
   "/api/stripe/webhook",
   express.raw({ type: "application/json" }),
   (req, res) => {
-    const signature = req.headers["stripe-signature"];
-
-    if (!stripe || !process.env.STRIPE_WEBHOOK_SECRET) {
-      return res.json({ received: true });
+    if (!stripe) {
+      return res.status(200).json({
+        received: true,
+        message: "Stripe is not configured"
+      });
     }
 
     try {
-      const event = stripe.webhooks.constructEvent(
-        req.body,
-        signature,
-        process.env.STRIPE_WEBHOOK_SECRET
-      );
+      const signature =
+        req.headers["stripe-signature"];
 
-      switch (event.type) {
-        case "checkout.session.completed":
-          console.log(
-            "Stripe payment completed:",
-            event.data.object.id
-          );
-          break;
+      const webhookSecret =
+        process.env.STRIPE_WEBHOOK_SECRET;
 
-        case "checkout.session.expired":
-          console.log(
-            "Stripe checkout expired:",
-            event.data.object.id
-          );
-          break;
-
-        default:
-          console.log(`Unhandled Stripe event: ${event.type}`);
+      if (!signature || !webhookSecret) {
+        return res.status(400).json({
+          error: "Stripe webhook configuration missing"
+        });
       }
 
-      res.json({ received: true });
+      const event =
+        stripe.webhooks.constructEvent(
+          req.body,
+          signature,
+          webhookSecret
+        );
+
+      console.log(
+        "Stripe event:",
+        event.type
+      );
+
+      if (
+        event.type ===
+        "checkout.session.completed"
+      ) {
+        const session = event.data.object;
+
+        console.log(
+          "Stripe payment successful:",
+          session.id
+        );
+      }
+
+      return res.sendStatus(200);
+
     } catch (error) {
-      console.error("Stripe webhook error:", error.message);
-      res.status(400).send(`Webhook Error: ${error.message}`);
+      console.error(
+        "Stripe webhook error:",
+        error.message
+      );
+
+      return res.status(400).send(
+        `Webhook Error: ${error.message}`
+      );
     }
   }
 );
-// Paystack payment initialization
-app.post("/api/paystack/initialize", async (req, res) => {
-  try {
-    const { email, amount, reference, metadata } = req.body;
-
-    if (!email || !amount) {
-      return res.status(400).json({
-        error: "Email and amount are required"
-      });
-    }
-
-    const response = await fetch(
-      "https://api.paystack.co/transaction/initialize",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email,
-          amount: Math.round(Number(amount) * 100),
-          currency: "KES",
-          reference,
-          callback_url:
-            "https://global-estates.onrender.com/payment-success.html",
-          metadata: metadata || {}
-        })
-      }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok || !data.status) {
-      console.error("Paystack error:", data);
-      return res.status(400).json({
-        error: data.message || "Paystack initialization failed"
-      });
-    }
-
-    res.json({
-      status: true,
-      authorization_url: data.data.authorization_url,
-      access_code: data.data.access_code,
-      reference: data.data.reference
-    });
-
-  } catch (error) {
-    console.error("Paystack initialization error:", error);
-    res.status(500).json({
-      error: "Payment initialization failed"
-    });
-  }
-});
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Serve the Global Estates frontend
-app.use(express.static("public"));
-
-// Health check
-app.get("/api/health", (req, res) => {
-  res.json({
-    success: true,
-    message: "Global Estates API is running."
-  });
-});
-
-// Homepage fallback
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/public/index.html");
-});
 
 /*
-  STRIPE CHECKOUT
-
-  The frontend sends:
-  {
-    plan: "featured",
-    listingId: "123"
-  }
+|--------------------------------------------------------------------------
+| JSON middleware
+|--------------------------------------------------------------------------
+| This MUST come after the raw webhook routes.
+|--------------------------------------------------------------------------
 */
 
-app.post("/api/create-checkout-session", async (req, res) => {
-  try {
-    if (!stripe) {
-      return res.status(500).json({
-        success: false,
-        message: "Stripe has not been configured yet."
-      });
-    }
+app.use(express.json());
+app.use(
+  express.urlencoded({
+    extended: true
+  })
+);
 
-    const { plan, listingId } = req.body;
+/*
+|--------------------------------------------------------------------------
+| PAYSTACK PAYMENT INITIALIZATION
+|--------------------------------------------------------------------------
+*/
 
-    const plans = {
-      featured: {
-        name: "Featured Property Listing",
-        amount: 1000
-      },
+app.post(
+  "/api/paystack/initialize",
+  async (req, res) => {
+    try {
+      const {
+        email,
+        amount,
+        reference,
+        metadata
+      } = req.body;
 
-      premium: {
-        name: "Premium Property Listing",
-        amount: 2500
-      }
-    };
-
-    const selectedPlan = plans[plan];
-
-    if (!selectedPlan) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid listing plan."
-      });
-    }
-
-    const baseUrl =
-      process.env.APP_URL ||
-      `${req.protocol}://${req.get("host")}`;
-
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-
-      line_items: [
+      console.log(
+        "Paystack initialization request:",
         {
-          price_data: {
-            currency: "kes",
+          email,
+          amount,
+          reference
+        }
+      );
 
-            product_data: {
-              name: selectedPlan.name,
-              description:
-                "Global Estates property listing upgrade"
-            },
+      /*
+      |--------------------------------------------------------------------------
+      | Validate request
+      |--------------------------------------------------------------------------
+      */
 
-            unit_amount: selectedPlan.amount * 100
+      if (!email || !amount) {
+        return res.status(400).json({
+          status: false,
+          error:
+            "Email and amount are required"
+        });
+      }
+
+      /*
+      |--------------------------------------------------------------------------
+      | Validate Paystack secret key
+      |--------------------------------------------------------------------------
+      */
+
+      if (!process.env.PAYSTACK_SECRET_KEY) {
+        console.error(
+          "PAYSTACK_SECRET_KEY is missing"
+        );
+
+        return res.status(500).json({
+          status: false,
+          error:
+            "Paystack is not configured on the server"
+        });
+      }
+
+      /*
+      |--------------------------------------------------------------------------
+      | Generate reference if one wasn't supplied
+      |--------------------------------------------------------------------------
+      */
+
+      const paymentReference =
+        reference ||
+        `GE-${Date.now()}-${Math.floor(
+          Math.random() * 100000
+        )}`;
+
+      /*
+      |--------------------------------------------------------------------------
+      | Paystack request
+      |--------------------------------------------------------------------------
+      */
+
+      const response = await fetch(
+        "https://api.paystack.co/transaction/initialize",
+        {
+          method: "POST",
+
+          headers: {
+            Authorization:
+              `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+
+            "Content-Type":
+              "application/json"
           },
 
-          quantity: 1
+          body: JSON.stringify({
+            email: email,
+
+            /*
+            | Paystack expects amount in the smallest
+            | currency unit.
+            |
+            | Example:
+            | KES 1,000 = 100000 cents
+            */
+            amount:
+              Math.round(
+                Number(amount) * 100
+              ),
+
+            currency: "KES",
+
+            reference:
+              paymentReference,
+
+            callback_url:
+              "https://global-estates.onrender.com/payment-success.html",
+
+            metadata:
+              metadata || {}
+          })
         }
-      ],
+      );
 
-      metadata: {
-        plan,
-        listingId: listingId || ""
-      },
+      const data =
+        await response.json();
 
-      success_url:
-        `${baseUrl}/payment-success.html?session_id={CHECKOUT_SESSION_ID}`,
+      console.log(
+        "Paystack response:",
+        data
+      );
 
-      cancel_url:
-        `${baseUrl}/payment-cancelled.html`
-    });
+      /*
+      |--------------------------------------------------------------------------
+      | Check Paystack response
+      |--------------------------------------------------------------------------
+      */
 
-    res.json({
-      success: true,
-      url: session.url
-    });
-  } catch (error) {
-    console.error("Stripe Checkout error:", error);
+      if (
+        !response.ok ||
+        !data.status
+      ) {
+        return res.status(400).json({
+          status: false,
 
-    res.status(500).json({
-      success: false,
-      message: "Unable to create Stripe checkout session."
-    });
+          error:
+            data.message ||
+            "Paystack initialization failed",
+
+          details: data
+        });
+      }
+
+      /*
+      |--------------------------------------------------------------------------
+      | Return checkout information
+      |--------------------------------------------------------------------------
+      */
+
+      return res.json({
+        status: true,
+
+        authorization_url:
+          data.data.authorization_url,
+
+        access_code:
+          data.data.access_code,
+
+        reference:
+          data.data.reference
+      });
+
+    } catch (error) {
+      console.error(
+        "Paystack initialization error:",
+        error
+      );
+
+      return res.status(500).json({
+        status: false,
+        error:
+          "Payment initialization failed"
+      });
+    }
   }
-});
+);
 
 /*
-  VERIFY STRIPE PAYMENT
+|--------------------------------------------------------------------------
+| PROPERTY API
+|--------------------------------------------------------------------------
+| Temporary in-memory storage.
+|
+| IMPORTANT:
+| This works for testing, but properties will disappear when
+| the Render service restarts. A database should be added later.
+|--------------------------------------------------------------------------
 */
 
-app.get("/api/verify-payment/:sessionId", async (req, res) => {
-  try {
-    if (!stripe) {
+const properties = [];
+
+/*
+|--------------------------------------------------------------------------
+| CREATE PROPERTY
+|--------------------------------------------------------------------------
+*/
+
+app.post(
+  "/api/properties",
+  (req, res) => {
+    try {
+      const property = req.body;
+
+      if (!property) {
+        return res.status(400).json({
+          status: false,
+          error:
+            "Property data is required"
+        });
+      }
+
+      const newProperty = {
+        id:
+          `GE-${Date.now()}-${Math.floor(
+            Math.random() * 10000
+          )}`,
+
+        ...property,
+
+        createdAt:
+          new Date().toISOString()
+      };
+
+      properties.push(newProperty);
+
+      console.log(
+        "Property created:",
+        newProperty.id
+      );
+
+      return res.status(201).json({
+        status: true,
+        property: newProperty
+      });
+
+    } catch (error) {
+      console.error(
+        "Property creation error:",
+        error
+      );
+
       return res.status(500).json({
-        success: false,
-        message: "Stripe has not been configured."
+        status: false,
+        error:
+          "Unable to create property"
+      });
+    }
+  }
+);
+
+/*
+|--------------------------------------------------------------------------
+| GET ALL PROPERTIES
+|--------------------------------------------------------------------------
+*/
+
+app.get(
+  "/api/properties",
+  (req, res) => {
+    return res.json({
+      status: true,
+      properties
+    });
+  }
+);
+
+/*
+|--------------------------------------------------------------------------
+| GET ONE PROPERTY
+|--------------------------------------------------------------------------
+*/
+
+app.get(
+  "/api/properties/:id",
+  (req, res) => {
+    const property =
+      properties.find(
+        item =>
+          item.id === req.params.id
+      );
+
+    if (!property) {
+      return res.status(404).json({
+        status: false,
+        error:
+          "Property not found"
       });
     }
 
-    const session = await stripe.checkout.sessions.retrieve(
-      req.params.sessionId
+    return res.json({
+      status: true,
+      property
+    });
+  }
+);
+
+/*
+|--------------------------------------------------------------------------
+| BOOKING API
+|--------------------------------------------------------------------------
+*/
+
+const bookings = [];
+
+app.post(
+  "/api/bookings",
+  (req, res) => {
+    try {
+      const booking = {
+        id:
+          `BOOK-${Date.now()}`,
+
+        ...req.body,
+
+        createdAt:
+          new Date().toISOString()
+      };
+
+      bookings.push(booking);
+
+      console.log(
+        "Booking created:",
+        booking.id
+      );
+
+      return res.status(201).json({
+        status: true,
+        booking
+      });
+
+    } catch (error) {
+      console.error(
+        "Booking error:",
+        error
+      );
+
+      return res.status(500).json({
+        status: false,
+        error:
+          "Unable to create booking"
+      });
+    }
+  }
+);
+
+/*
+|--------------------------------------------------------------------------
+| GET BOOKINGS
+|--------------------------------------------------------------------------
+*/
+
+app.get(
+  "/api/bookings",
+  (req, res) => {
+    return res.json({
+      status: true,
+      bookings
+    });
+  }
+);
+
+/*
+|--------------------------------------------------------------------------
+| HEALTH CHECK
+|--------------------------------------------------------------------------
+*/
+
+app.get(
+  "/api/health",
+  (req, res) => {
+    return res.status(200).json({
+      status: "ok",
+
+      service:
+        "Global Estates",
+
+      paystack:
+        Boolean(
+          process.env.PAYSTACK_SECRET_KEY
+        ),
+
+      timestamp:
+        new Date().toISOString()
+    });
+  }
+);
+
+/*
+|--------------------------------------------------------------------------
+| STATIC WEBSITE
+|--------------------------------------------------------------------------
+*/
+
+app.use(
+  express.static("public")
+);
+
+/*
+|--------------------------------------------------------------------------
+| ROOT ROUTE
+|--------------------------------------------------------------------------
+*/
+
+app.get(
+  "/",
+  (req, res) => {
+    res.sendFile(
+      require("path").join(
+        __dirname,
+        "public",
+        "index.html"
+      )
+    );
+  }
+);
+
+/*
+|--------------------------------------------------------------------------
+| 404 API HANDLER
+|--------------------------------------------------------------------------
+*/
+
+app.use(
+  "/api",
+  (req, res) => {
+    res.status(404).json({
+      status: false,
+      error: "API endpoint not found"
+    });
+  }
+);
+
+/*
+|--------------------------------------------------------------------------
+| START SERVER
+|--------------------------------------------------------------------------
+*/
+
+app.listen(
+  PORT,
+  "0.0.0.0",
+  () => {
+    console.log(
+      `Global Estates running on port ${PORT}`
     );
 
-    res.json({
-      success: true,
-      payment_status: session.payment_status,
-      status: session.status,
-      amount_total: session.amount_total,
-      currency: session.currency,
-      customer_email: session.customer_details?.email || null,
-      metadata: session.metadata
-    });
-  } catch (error) {
-    console.error("Payment verification error:", error);
+    console.log(
+      "Paystack configured:",
+      Boolean(
+        process.env.PAYSTACK_SECRET_KEY
+      )
+    );
 
-    res.status(500).json({
-      success: false,
-      message: "Unable to verify payment."
-    });
+    console.log(
+      "Stripe configured:",
+      Boolean(
+        process.env.STRIPE_SECRET_KEY
+      )
+    );
   }
-});
-
-/*
-  BASIC BOOKING ENDPOINT
-
-  This is the foundation.
-  We'll connect it to a real database later.
-*/
-
-app.post("/api/bookings", async (req, res) => {
-  try {
-    const {
-      propertyId,
-      name,
-      email,
-      phone,
-      checkIn,
-      checkOut,
-      guests
-    } = req.body;
-
-    if (!propertyId || !name || !email) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "Property, name and email are required."
-      });
-    }
-
-    const booking = {
-      id: `booking_${Date.now()}`,
-      propertyId,
-      name,
-      email,
-      phone: phone || "",
-      checkIn: checkIn || null,
-      checkOut: checkOut || null,
-      guests: guests || 1,
-      status: "pending",
-      createdAt: new Date().toISOString()
-    };
-
-    console.log("New booking:", booking);
-
-    res.status(201).json({
-      success: true,
-      message: "Booking request received.",
-      booking
-    });
-  } catch (error) {
-    console.error("Booking error:", error);
-
-    res.status(500).json({
-      success: false,
-      message: "Unable to create booking."
-    });
-  }
-});
-
-/*
-  CONTACT OWNER
-*/
-
-app.post("/api/contact-owner", (req, res) => {
-  const {
-    propertyId,
-    name,
-    email,
-    phone,
-    message
-  } = req.body;
-
-  if (!propertyId || !name || !message) {
-    return res.status(400).json({
-      success: false,
-      message:
-        "Property, name and message are required."
-    });
-  }
-
-  console.log("Owner contact request:", {
-    propertyId,
-    name,
-    email,
-    phone,
-    message
-  });
-
-  res.json({
-    success: true,
-    message: "Your message has been sent to the property owner."
-  });
-});
-
-/*
-  404 API HANDLER
-*/
-
-app.use("/api/*", (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "API endpoint not found."
-  });
-});
-
-/*
-  START SERVER
-*/
-
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(
-    `Global Estates server running on port ${PORT}`
-  );
-});
+);
