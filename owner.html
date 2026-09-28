@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Owner Dashboard - Global Estates</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+
+<header class="site-header">
+  <div class="container nav-container">
+    <a href="/" class="logo">Global Estates</a>
+
+    <button class="menu-btn" type="button">☰</button>
+
+    <nav class="nav-links">
+      <a href="/">Home</a>
+      <a href="/owner.html">List Property</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container section">
+
+  <div class="section-heading">
+    <h1>List Your Property</h1>
+    <p>Reach customers around the world with Global Estates.</p>
+  </div>
+
+  <div class="card">
+
+    <form id="propertyForm">
+
+      <div class="form-group">
+        <label>Property Title</label>
+        <input
+          type="text"
+          id="title"
+          placeholder="e.g. Modern 3 Bedroom House"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label>Location</label>
+        <input
+          type="text"
+          id="location"
+          placeholder="e.g. Nairobi, Kenya"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label>Country</label>
+        <input
+          type="text"
+          id="country"
+          placeholder="e.g. Kenya"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label>Property Type</label>
+        <select id="propertyType" required>
+          <option value="">Select property type</option>
+          <option value="House">House</option>
+          <option value="Apartment">Apartment</option>
+          <option value="Villa">Villa</option>
+          <option value="Land">Land</option>
+          <option value="Hotel">Hotel</option>
+          <option value="Vacation Home">Vacation Home</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Purpose</label>
+        <select id="purpose" required>
+          <option value="">Select purpose</option>
+          <option value="Rent">For Rent</option>
+          <option value="Sale">For Sale</option>
+          <option value="Vacation">Vacation Stay</option>
+          <option value="Outing">Outing</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Price</label>
+        <input
+          type="number"
+          id="price"
+          placeholder="Enter price"
+          min="0"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label>Currency</label>
+        <select id="currency">
+          <option value="KES">KES - Kenyan Shilling</option>
+          <option value="USD">USD - US Dollar</option>
+          <option value="EUR">EUR - Euro</option>
+          <option value="GBP">GBP - British Pound</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <textarea
+          id="description"
+          rows="5"
+          placeholder="Describe your property..."
+          required
+        ></textarea>
+      </div>
+
+      <h2>Owner Information</h2>
+
+      <div class="form-group">
+        <label>Your Name</label>
+        <input
+          type="text"
+          id="ownerName"
+          placeholder="Full name"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label>Email</label>
+        <input
+          type="email"
+          id="ownerEmail"
+          placeholder="Email address"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label>Phone / WhatsApp</label>
+        <input
+          type="tel"
+          id="ownerPhone"
+          placeholder="Phone number"
+          required
+        >
+      </div>
+
+      <button type="submit" class="btn btn-primary">
+        Save Property Details
+      </button>
+
+    </form>
+
+    <div id="propertyMessage"></div>
+
+  </div>
+
+  <div class="section-heading">
+    <h2>Choose Listing Plan</h2>
+    <p>Your property will be submitted for payment before promotion.</p>
+  </div>
+
+  <div class="property-grid">
+
+    <div class="card">
+      <h2>Featured</h2>
+      <h3>KES 1,000</h3>
+
+      <p>Promote your property as a Featured listing.</p>
+
+      <button
+        type="button"
+        class="btn btn-primary"
+        data-plan="featured"
+      >
+        Choose Featured
+      </button>
+    </div>
+
+    <div class="card">
+      <h2>Premium</h2>
+      <h3>KES 2,500</h3>
+
+      <p>Give your property Premium visibility.</p>
+
+      <button
+        type="button"
+        class="btn btn-secondary"
+        data-plan="premium"
+      >
+        Choose Premium
+      </button>
+    </div>
+
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>© 2026 Global Estates. All rights reserved.</p>
+  </div>
+</footer>
+
+<script src="/app.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  const form = document.getElementById("propertyForm");
+  const message = document.getElementById("propertyMessage");
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const property = {
+      title: document.getElementById("title").value,
+      location: document.getElementById("location").value,
+      country: document.getElementById("country").value,
+      propertyType: document.getElementById("propertyType").value,
+      purpose: document.getElementById("purpose").value,
+      price: document.getElementById("price").value,
+      currency: document.getElementById("currency").value,
+      description: document.getElementById("description").value,
+      ownerName: document.getElementById("ownerName").value,
+      ownerEmail: document.getElementById("ownerEmail").value,
+      ownerPhone: document.getElementById("ownerPhone").value
+    };
+
+    localStorage.setItem(
+      "globalEstatesProperty",
+      JSON.stringify(property)
+    );
+
+    message.innerHTML =
+      '<div class="alert alert-success">Property details saved. Now choose a listing plan below.</div>';
+
+    window.scrollTo({
+      top: document.body.scrollHeight,
+      behavior: "smooth"
+    });
+  });
+
+});
+</script>
+
+</body>
+</html>
