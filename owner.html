@@ -3,359 +3,904 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>List Property - Global Estates</title>
-  <link rel="stylesheet" href="/style.css">
+
+  <title>List Your Property | Global Estates</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0b1110;
+      color: #ffffff;
+    }
+
+    .navbar {
+      padding: 18px 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #26332f;
+      background: #0f1715;
+    }
+
+    .logo {
+      color: #d4af37;
+      font-size: 23px;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .logo span {
+      color: #ffffff;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-links a {
+      color: #ffffff;
+      text-decoration: none;
+    }
+
+    .container {
+      width: 92%;
+      max-width: 850px;
+      margin: auto;
+    }
+
+    main {
+      padding: 45px 0;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .section-title h1 {
+      color: #d4af37;
+      margin-bottom: 10px;
+    }
+
+    .section-title p {
+      color: #b7c0bc;
+    }
+
+    .form-card {
+      background: #121a18;
+      border: 1px solid #293632;
+      border-radius: 14px;
+      padding: 30px;
+    }
+
+    .form-card h2 {
+      color: #d4af37;
+      margin-top: 0;
+      margin-bottom: 25px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid #3a4743;
+      background: #0b1110;
+      color: #ffffff;
+      font-size: 16px;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #d4af37;
+    }
+
+    textarea {
+      min-height: 130px;
+      resize: vertical;
+    }
+
+    .plan-box {
+      margin: 25px 0;
+      padding: 20px;
+      border-radius: 10px;
+      background: #0d1513;
+      border: 1px solid #293632;
+    }
+
+    .plan-box h3 {
+      margin-top: 0;
+      color: #d4af37;
+    }
+
+    .fee {
+      margin-top: 8px;
+      color: #b7c0bc;
+      font-size: 14px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 9px;
+      background: #d4af37;
+      color: #111111;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    #message {
+      display: none;
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      line-height: 1.5;
+    }
+
+    #message.success {
+      display: block;
+      background: #123b29;
+      color: #9de7b9;
+    }
+
+    #message.error {
+      display: block;
+      background: #431b1b;
+      color: #ffb1b1;
+    }
+
+    .site-footer {
+      text-align: center;
+      padding: 30px 0;
+      color: #8e9994;
+      border-top: 1px solid #26332f;
+    }
+
+    @media (max-width: 650px) {
+      .navbar {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .form-card {
+        padding: 20px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<header class="site-header">
-  <div class="container nav-container">
-    <a href="/" class="logo">Global Estates</a>
+<header>
+  <nav class="navbar">
 
-    <button class="menu-btn" type="button">☰</button>
+    <a href="/" class="logo">
+      Global <span>Estates</span>
+    </a>
 
-    <nav class="nav-links">
+    <div class="nav-links">
       <a href="/">Home</a>
+      <a href="/properties.html">Properties</a>
       <a href="/owner.html">List Property</a>
-    </nav>
-  </div>
+    </div>
+
+  </nav>
 </header>
 
-<main class="container section">
 
-  <div class="section-heading">
+<main class="container">
+
+  <div class="section-title">
+
     <h1>List Your Property</h1>
-    <p>Enter your property details and continue securely to Paystack.</p>
+
+    <p>
+      Reach customers around the world through Global Estates.
+    </p>
+
   </div>
 
-  <div class="card">
+
+  <div class="form-card">
+
+    <h2>Property Details</h2>
+
 
     <form id="propertyForm">
 
       <div class="form-group">
-        <label for="title">Property Title</label>
-        <input id="title" type="text" required
-          placeholder="e.g. Modern 3 Bedroom House">
+
+        <label for="title">
+          Property Title
+        </label>
+
+        <input
+          id="title"
+          name="title"
+          type="text"
+          placeholder="e.g. Modern 3 Bedroom House"
+          required
+        >
+
       </div>
+
+
+      <div class="form-row">
+
+        <div class="form-group">
+
+          <label for="location">
+            Location
+          </label>
+
+          <input
+            id="location"
+            name="location"
+            type="text"
+            placeholder="e.g. Nairobi"
+            required
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="country">
+            Country
+          </label>
+
+          <input
+            id="country"
+            name="country"
+            type="text"
+            placeholder="e.g. Kenya"
+            required
+          >
+
+        </div>
+
+      </div>
+
+
+      <div class="form-row">
+
+        <div class="form-group">
+
+          <label for="propertyType">
+            Property Type
+          </label>
+
+          <select
+            id="propertyType"
+            name="propertyType"
+            required
+          >
+
+            <option value="">
+              Select property type
+            </option>
+
+            <option value="House">
+              House
+            </option>
+
+            <option value="Apartment">
+              Apartment
+            </option>
+
+            <option value="Villa">
+              Villa
+            </option>
+
+            <option value="Land">
+              Land
+            </option>
+
+            <option value="Hotel">
+              Hotel
+            </option>
+
+            <option value="Vacation Home">
+              Vacation Home
+            </option>
+
+            <option value="Other">
+              Other
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="purpose">
+            Purpose
+          </label>
+
+          <select
+            id="purpose"
+            name="purpose"
+            required
+          >
+
+            <option value="">
+              Select purpose
+            </option>
+
+            <option value="For Rent">
+              For Rent
+            </option>
+
+            <option value="For Sale">
+              For Sale
+            </option>
+
+            <option value="Vacation">
+              Vacation
+            </option>
+
+            <option value="Outing">
+              Outing
+            </option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+
+      <div class="form-row">
+
+        <div class="form-group">
+
+          <label for="price">
+            Property Price
+          </label>
+
+          <input
+            id="price"
+            name="price"
+            type="number"
+            min="0"
+            placeholder="Enter property price"
+            required
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="currency">
+            Currency
+          </label>
+
+          <select
+            id="currency"
+            name="currency"
+          >
+
+            <option value="KES">
+              KES - Kenyan Shilling
+            </option>
+
+            <option value="USD">
+              USD - US Dollar
+            </option>
+
+            <option value="EUR">
+              EUR - Euro
+            </option>
+
+            <option value="GBP">
+              GBP - British Pound
+            </option>
+
+          </select>
+
+        </div>
+
+      </div>
+
 
       <div class="form-group">
-        <label for="location">Location</label>
-        <input id="location" type="text" required
-          placeholder="e.g. Nairobi">
+
+        <label for="description">
+          Property Description
+        </label>
+
+        <textarea
+          id="description"
+          name="description"
+          placeholder="Describe the property, amenities, size, nearby facilities, etc."
+          required
+        ></textarea>
+
       </div>
+
+
+      <h2>
+        Owner Information
+      </h2>
+
 
       <div class="form-group">
-        <label for="country">Country</label>
-        <input id="country" type="text" required
-          placeholder="e.g. Kenya">
+
+        <label for="ownerName">
+          Full Name
+        </label>
+
+        <input
+          id="ownerName"
+          name="ownerName"
+          type="text"
+          placeholder="Your full name"
+          required
+        >
+
       </div>
 
-      <div class="form-group">
-        <label for="propertyType">Property Type</label>
-        <select id="propertyType" required>
-          <option value="">Select property type</option>
-          <option>House</option>
-          <option>Apartment</option>
-          <option>Villa</option>
-          <option>Land</option>
-          <option>Hotel</option>
-          <option>Vacation Home</option>
-          <option>Other</option>
-        </select>
+
+      <div class="form-row">
+
+        <div class="form-group">
+
+          <label for="ownerEmail">
+            Email
+          </label>
+
+          <input
+            id="ownerEmail"
+            name="ownerEmail"
+            type="email"
+            placeholder="you@example.com"
+            required
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="ownerPhone">
+            Phone / WhatsApp
+          </label>
+
+          <input
+            id="ownerPhone"
+            name="ownerPhone"
+            type="tel"
+            placeholder="e.g. 0712345678"
+            required
+          >
+
+        </div>
+
       </div>
 
-      <div class="form-group">
-        <label for="purpose">Purpose</label>
-        <select id="purpose" required>
-          <option value="">Select purpose</option>
-          <option>For Rent</option>
-          <option>For Sale</option>
-          <option>Vacation</option>
-          <option>Outing</option>
-        </select>
+
+      <div class="plan-box">
+
+        <h3>
+          Choose Listing Plan
+        </h3>
+
+
+        <div class="form-group">
+
+          <label for="plan">
+            Listing Plan
+          </label>
+
+          <select
+            id="plan"
+            name="plan"
+            required
+          >
+
+            <option
+              value="Featured"
+              data-amount="1000"
+            >
+              Featured - KES 1,000
+            </option>
+
+            <option
+              value="Premium"
+              data-amount="2500"
+            >
+              Premium - KES 2,500
+            </option>
+
+          </select>
+
+          <div class="fee">
+            Your property details will be saved before payment.
+          </div>
+
+        </div>
+
       </div>
 
-      <div class="form-group">
-        <label for="price">Property Price</label>
-        <input id="price" type="number" min="0" required
-          placeholder="Enter property price">
-      </div>
-
-      <div class="form-group">
-        <label for="currency">Currency</label>
-        <select id="currency">
-          <option value="KES">KES - Kenyan Shilling</option>
-          <option value="USD">USD - US Dollar</option>
-          <option value="EUR">EUR - Euro</option>
-          <option value="GBP">GBP - British Pound</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="description">Description</label>
-        <textarea id="description" rows="5" required
-          placeholder="Describe your property"></textarea>
-      </div>
-
-      <h2>Owner Information</h2>
-
-      <div class="form-group">
-        <label for="ownerName">Your Name</label>
-        <input id="ownerName" type="text" required>
-      </div>
-
-      <div class="form-group">
-        <label for="ownerEmail">Email</label>
-        <input id="ownerEmail" type="email" required
-          placeholder="you@example.com">
-      </div>
-
-      <div class="form-group">
-        <label for="ownerPhone">Phone / WhatsApp</label>
-        <input id="ownerPhone" type="tel" required>
-      </div>
-
-      <div class="form-group">
-        <label for="plan">Listing Plan</label>
-
-        <select id="plan" required>
-          <option value="Featured" data-amount="1000">
-            Featured - KES 1,000
-          </option>
-
-          <option value="Premium" data-amount="2500">
-            Premium - KES 2,500
-          </option>
-        </select>
-      </div>
 
       <button
-        id="continueButton"
         type="submit"
-        class="btn btn-primary">
+        id="continueButton"
+        class="btn"
+      >
         Continue to Paystack
       </button>
 
-    </form>
 
-    <div id="propertyMessage"></div>
+      <div id="message"></div>
+
+    </form>
 
   </div>
 
 </main>
 
+
 <footer class="site-footer">
-  <div class="container">
-    <p>© 2026 Global Estates. All rights reserved.</p>
-  </div>
+
+  <p>
+    © 2026 Global Estates. All rights reserved.
+  </p>
+
 </footer>
 
 
 <script>
 
-document.addEventListener("DOMContentLoaded", function () {
+(function () {
 
-  const form = document.getElementById("propertyForm");
-  const button = document.getElementById("continueButton");
-  const message = document.getElementById("propertyMessage");
+  const form =
+    document.getElementById("propertyForm");
 
-  form.addEventListener("submit", async function (event) {
+  const button =
+    document.getElementById("continueButton");
 
-    event.preventDefault();
+  const message =
+    document.getElementById("message");
 
-    button.disabled = true;
-    button.textContent = "Saving property...";
 
-    const planSelect = document.getElementById("plan");
-    const selectedPlan =
-      planSelect.options[planSelect.selectedIndex];
+  function showMessage(text, type) {
 
-    const amount =
-      Number(selectedPlan.dataset.amount);
+    message.textContent = text;
 
-    const property = {
+    message.className = type;
 
-      title:
-        document.getElementById("title").value.trim(),
+    message.style.display = "block";
 
-      location:
-        document.getElementById("location").value.trim(),
+  }
 
-      country:
-        document.getElementById("country").value.trim(),
 
-      propertyType:
-        document.getElementById("propertyType").value,
+  form.addEventListener(
+    "submit",
+    async function (event) {
 
-      purpose:
-        document.getElementById("purpose").value,
+      event.preventDefault();
 
-      price:
-        document.getElementById("price").value,
 
-      currency:
-        document.getElementById("currency").value,
-
-      description:
-        document.getElementById("description").value.trim(),
-
-      ownerName:
-        document.getElementById("ownerName").value.trim(),
-
-      ownerEmail:
-        document.getElementById("ownerEmail").value.trim(),
-
-      ownerPhone:
-        document.getElementById("ownerPhone").value.trim(),
-
-      plan:
-        selectedPlan.value,
-
-      listingFee:
-        amount,
-
-      savedAt:
-        new Date().toISOString()
-
-    };
-
-
-    /* Save property on the client's device */
-
-    localStorage.setItem(
-      "globalEstatesProperty",
-      JSON.stringify(property)
-    );
-
-
-    message.innerHTML =
-      '<div class="alert alert-success">' +
-      'Property saved. Opening secure payment...' +
-      '</div>';
-
-
-    button.textContent =
-      "Opening Paystack...";
-
-
-    try {
-
-      const response = await fetch(
-        "/api/paystack/initialize",
-        {
-
-          method: "POST",
-
-          headers: {
-            "Content-Type": "application/json"
-          },
-
-          body: JSON.stringify({
-
-            email: property.ownerEmail,
-
-            amount: amount,
-
-            metadata: {
-
-              plan: property.plan,
-
-              listingFee: amount,
-
-              propertyTitle:
-                property.title,
-
-              propertyLocation:
-                property.location,
-
-              country:
-                property.country,
-
-              propertyType:
-                property.propertyType,
-
-              purpose:
-                property.purpose,
-
-              propertyPrice:
-                property.price,
-
-              currency:
-                property.currency,
-
-              description:
-                property.description,
-
-              ownerName:
-                property.ownerName,
-
-              ownerPhone:
-                property.ownerPhone,
-
-              source:
-                "Global Estates"
-
-            }
-
-          })
-
-        }
-      );
-
-
-      const data =
-        await response.json();
-
-
-      if (!response.ok || !data.status) {
-
-        throw new Error(
-          data.error ||
-          "Paystack could not start the payment."
-        );
-
-      }
-
-
-      if (!data.authorization_url) {
-
-        throw new Error(
-          "Paystack checkout URL was not returned."
-        );
-
-      }
-
-
-      /* Send client directly to Paystack */
-
-      window.location.href =
-        data.authorization_url;
-
-
-    } catch (error) {
-
-      console.error(
-        "Paystack error:",
-        error
-      );
-
-      message.innerHTML =
-        '<div class="alert alert-error">' +
-        'Payment could not be started: ' +
-        error.message +
-        '</div>';
-
-      button.disabled = false;
+      button.disabled = true;
 
       button.textContent =
-        "Continue to Paystack";
+        "Saving property...";
+
+
+      try {
+
+        const planSelect =
+          document.getElementById("plan");
+
+
+        const selectedOption =
+          planSelect.options[
+            planSelect.selectedIndex
+          ];
+
+
+        const amount =
+          Number(
+            selectedOption.getAttribute(
+              "data-amount"
+            )
+          );
+
+
+        const property = {
+
+          title:
+            document.getElementById(
+              "title"
+            ).value.trim(),
+
+          location:
+            document.getElementById(
+              "location"
+            ).value.trim(),
+
+          country:
+            document.getElementById(
+              "country"
+            ).value.trim(),
+
+          propertyType:
+            document.getElementById(
+              "propertyType"
+            ).value,
+
+          purpose:
+            document.getElementById(
+              "purpose"
+            ).value,
+
+          price:
+            document.getElementById(
+              "price"
+            ).value,
+
+          currency:
+            document.getElementById(
+              "currency"
+            ).value,
+
+          description:
+            document.getElementById(
+              "description"
+            ).value.trim(),
+
+          ownerName:
+            document.getElementById(
+              "ownerName"
+            ).value.trim(),
+
+          ownerEmail:
+            document.getElementById(
+              "ownerEmail"
+            ).value.trim(),
+
+          ownerPhone:
+            document.getElementById(
+              "ownerPhone"
+            ).value.trim(),
+
+          plan:
+            planSelect.value,
+
+          listingFee:
+            amount,
+
+          createdAt:
+            new Date().toISOString()
+
+        };
+
+
+        /*
+         * Save a temporary copy
+         * on the owner's device.
+         */
+
+        localStorage.setItem(
+          "globalEstatesProperty",
+          JSON.stringify(property)
+        );
+
+
+        showMessage(
+          "Property saved. Connecting to Paystack...",
+          "success"
+        );
+
+
+        button.textContent =
+          "Connecting to Paystack...";
+
+
+        /*
+         * Send the property and payment
+         * information to the backend.
+         */
+
+        const response =
+          await fetch(
+            "/api/paystack/initialize",
+            {
+
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json"
+              },
+
+              body: JSON.stringify({
+
+                email:
+                  property.ownerEmail,
+
+                amount:
+                  property.listingFee,
+
+                metadata: {
+
+                  source:
+                    "Global Estates",
+
+                  plan:
+                    property.plan,
+
+                  listingFee:
+                    property.listingFee,
+
+                  propertyTitle:
+                    property.title,
+
+                  propertyLocation:
+                    property.location,
+
+                  country:
+                    property.country,
+
+                  propertyType:
+                    property.propertyType,
+
+                  purpose:
+                    property.purpose,
+
+                  propertyPrice:
+                    property.price,
+
+                  currency:
+                    property.currency,
+
+                  description:
+                    property.description,
+
+                  ownerName:
+                    property.ownerName,
+
+                  ownerPhone:
+                    property.ownerPhone
+
+                }
+
+              })
+
+            }
+          );
+
+
+        const data =
+          await response.json();
+
+
+        console.log(
+          "Global Estates Paystack response:",
+          data
+        );
+
+
+        if (
+          !response.ok ||
+          !data.status
+        ) {
+
+          throw new Error(
+            data.error ||
+            data.message ||
+            "Paystack payment could not be initialized."
+          );
+
+        }
+
+
+        if (
+          !data.authorization_url
+        ) {
+
+          throw new Error(
+            "Paystack did not return a checkout URL."
+          );
+
+        }
+
+
+        showMessage(
+          "Payment initialized. Opening Paystack...",
+          "success"
+        );
+
+
+        button.textContent =
+          "Opening Paystack...";
+
+
+        /*
+         * Redirect to Paystack checkout.
+         */
+
+        window.location.assign(
+          data.authorization_url
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          "Global Estates Paystack error:",
+          error
+        );
+
+
+        showMessage(
+          "Payment could not be started: " +
+          error.message,
+          "error"
+        );
+
+
+        button.disabled = false;
+
+        button.textContent =
+          "Continue to Paystack";
+
+      }
 
     }
+  );
 
-  });
-
-});
+})();
 
 </script>
 
