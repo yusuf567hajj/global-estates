@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Payment Successful | Global Estates</title>
+
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+
+  <header>
+    <nav class="navbar">
+      <a href="/" class="logo">
+        Global <span>Estates</span>
+      </a>
+
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/properties.html">Properties</a>
+        <a href="/owner.html">List Property</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <div class="form-card text-center">
+
+      <div style="font-size: 60px; margin-bottom: 15px;">
+        ✓
+      </div>
+
+      <h1>Payment Successful!</h1>
+
+      <p style="margin: 15px 0;">
+        Thank you for your payment. Your Global Estates
+        listing upgrade has been received.
+      </p>
+
+      <div id="paymentStatus" class="alert alert-info">
+        Verifying your payment...
+      </div>
+
+      <div id="paymentDetails"></div>
+
+      <div style="margin-top: 25px;">
+        <a href="/" class="btn btn-primary">
+          Return to Global Estates
+        </a>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-content">
+
+      <div>
+        <h3>Global Estates</h3>
+        <p>
+          Find homes, vacation stays, outings and land
+          around the world.
+        </p>
+      </div>
+
+      <div>
+        <h4>Explore</h4>
+        <a href="/">Home</a>
+        <a href="/properties.html">Properties</a>
+      </div>
+
+      <div>
+        <h4>Owners</h4>
+        <a href="/owner.html">List Property</a>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      © 2026 Global Estates. All rights reserved.
+    </div>
+  </footer>
+
+  <script>
+    async function verifyPayment() {
+
+      const statusBox =
+        document.getElementById("paymentStatus");
+
+      const details =
+        document.getElementById("paymentDetails");
+
+      const params =
+        new URLSearchParams(window.location.search);
+
+      const sessionId =
+        params.get("session_id");
+
+      if (!sessionId) {
+        statusBox.className = "alert alert-error";
+        statusBox.textContent =
+          "Payment session could not be found.";
+        return;
+      }
+
+      try {
+
+        const response = await fetch(
+          `/api/verify-payment/${encodeURIComponent(sessionId)}`
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error(
+            data.message || "Unable to verify payment."
+          );
+        }
+
+        if (data.payment_status === "paid") {
+
+          statusBox.className =
+            "alert alert-success";
+
+          statusBox.textContent =
+            "✓ Payment confirmed successfully.";
+
+          const amount =
+            data.amount_total
+              ? (data.amount_total / 100).toLocaleString(
+                  "en-KE",
+                  {
+                    style: "currency",
+                    currency:
+                      (data.currency || "kes").toUpperCase()
+                  }
+                )
+              : "Confirmed";
+
+          details.innerHTML = `
+            <div style="
+              margin-top:20px;
+              padding:20px;
+              background:#f8fafc;
+              border-radius:10px;
+              text-align:left;
+            ">
+              <p>
+                <strong>Payment:</strong>
+                ${amount}
+              </p>
+
+              <p>
+                <strong>Status:</strong>
+                Paid
+              </p>
+
+              ${
+                data.metadata?.plan
+                  ? `<p>
+                      <strong>Plan:</strong>
+                      ${data.metadata.plan}
+                    </p>`
+                  : ""
+              }
+
+              ${
+                data.metadata?.listingId
+                  ? `<p>
+                      <strong>Listing ID:</strong>
+                      ${data.metadata.listingId}
+                    </p>`
+                  : ""
+              }
+            </div>
+          `;
+
+        } else {
+
+          statusBox.className =
+            "alert alert-info";
+
+          statusBox.textContent =
+            "Your payment has not been confirmed yet.";
+        }
+
+      } catch (error) {
+
+        console.error(error);
+
+        statusBox.className =
+          "alert alert-error";
+
+        statusBox.textContent =
+          "We could not verify your payment right now. Please contact Global Estates support.";
+      }
+    }
+
+    verifyPayment();
+  </script>
+
+</body>
+</html>
