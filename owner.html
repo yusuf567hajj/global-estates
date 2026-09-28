@@ -26,7 +26,7 @@
 
   <div class="section-heading">
     <h1>List Your Property</h1>
-    <p>Enter your property details and choose a listing plan.</p>
+    <p>Enter your property details and continue securely to Paystack.</p>
   </div>
 
   <div class="card">
@@ -116,48 +116,30 @@
         <input id="ownerPhone" type="tel" required>
       </div>
 
-      <button type="submit" class="btn btn-primary">
-        Continue to Listing Plans
+      <div class="form-group">
+        <label for="plan">Listing Plan</label>
+
+        <select id="plan" required>
+          <option value="Featured" data-amount="1000">
+            Featured - KES 1,000
+          </option>
+
+          <option value="Premium" data-amount="2500">
+            Premium - KES 2,500
+          </option>
+        </select>
+      </div>
+
+      <button
+        id="continueButton"
+        type="submit"
+        class="btn btn-primary">
+        Continue to Paystack
       </button>
 
     </form>
 
     <div id="propertyMessage"></div>
-
-  </div>
-
-  <div id="plans" class="section-heading" style="display:none;">
-    <h2>Choose Listing Plan</h2>
-    <p>Select a plan and continue securely with Paystack.</p>
-  </div>
-
-  <div id="planCards" class="property-grid" style="display:none;">
-
-    <div class="card">
-      <h2>Featured</h2>
-      <h3>KES 1,000</h3>
-      <p>Promote your property as a Featured listing.</p>
-
-      <button
-        type="button"
-        class="btn btn-primary"
-        onclick="payWithPaystack(1000, 'Featured')">
-        Choose Featured
-      </button>
-    </div>
-
-    <div class="card">
-      <h2>Premium</h2>
-      <h3>KES 2,500</h3>
-      <p>Give your property Premium visibility.</p>
-
-      <button
-        type="button"
-        class="btn btn-secondary"
-        onclick="payWithPaystack(2500, 'Premium')">
-        Choose Premium
-      </button>
-    </div>
 
   </div>
 
@@ -169,139 +151,212 @@
   </div>
 </footer>
 
+
 <script>
+
 document.addEventListener("DOMContentLoaded", function () {
 
   const form = document.getElementById("propertyForm");
+  const button = document.getElementById("continueButton");
   const message = document.getElementById("propertyMessage");
-  const plans = document.getElementById("plans");
-  const planCards = document.getElementById("planCards");
 
-  form.addEventListener("submit", function (event) {
+  form.addEventListener("submit", async function (event) {
+
     event.preventDefault();
 
+    button.disabled = true;
+    button.textContent = "Saving property...";
+
+    const planSelect = document.getElementById("plan");
+    const selectedPlan =
+      planSelect.options[planSelect.selectedIndex];
+
+    const amount =
+      Number(selectedPlan.dataset.amount);
+
     const property = {
-      title: document.getElementById("title").value.trim(),
-      location: document.getElementById("location").value.trim(),
-      country: document.getElementById("country").value.trim(),
-      propertyType: document.getElementById("propertyType").value,
-      purpose: document.getElementById("purpose").value,
-      price: document.getElementById("price").value,
-      currency: document.getElementById("currency").value,
-      description: document.getElementById("description").value.trim(),
-      ownerName: document.getElementById("ownerName").value.trim(),
-      ownerEmail: document.getElementById("ownerEmail").value.trim(),
-      ownerPhone: document.getElementById("ownerPhone").value.trim()
+
+      title:
+        document.getElementById("title").value.trim(),
+
+      location:
+        document.getElementById("location").value.trim(),
+
+      country:
+        document.getElementById("country").value.trim(),
+
+      propertyType:
+        document.getElementById("propertyType").value,
+
+      purpose:
+        document.getElementById("purpose").value,
+
+      price:
+        document.getElementById("price").value,
+
+      currency:
+        document.getElementById("currency").value,
+
+      description:
+        document.getElementById("description").value.trim(),
+
+      ownerName:
+        document.getElementById("ownerName").value.trim(),
+
+      ownerEmail:
+        document.getElementById("ownerEmail").value.trim(),
+
+      ownerPhone:
+        document.getElementById("ownerPhone").value.trim(),
+
+      plan:
+        selectedPlan.value,
+
+      listingFee:
+        amount,
+
+      savedAt:
+        new Date().toISOString()
+
     };
+
+
+    /* Save property on the client's device */
 
     localStorage.setItem(
       "globalEstatesProperty",
       JSON.stringify(property)
     );
 
+
     message.innerHTML =
-      '<div class="alert alert-success">Property details saved. Choose your listing plan below.</div>';
+      '<div class="alert alert-success">' +
+      'Property saved. Opening secure payment...' +
+      '</div>';
 
-    plans.style.display = "block";
-    planCards.style.display = "grid";
 
-    plans.scrollIntoView({ behavior: "smooth" });
+    button.textContent =
+      "Opening Paystack...";
+
+
+    try {
+
+      const response = await fetch(
+        "/api/paystack/initialize",
+        {
+
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify({
+
+            email: property.ownerEmail,
+
+            amount: amount,
+
+            metadata: {
+
+              plan: property.plan,
+
+              listingFee: amount,
+
+              propertyTitle:
+                property.title,
+
+              propertyLocation:
+                property.location,
+
+              country:
+                property.country,
+
+              propertyType:
+                property.propertyType,
+
+              purpose:
+                property.purpose,
+
+              propertyPrice:
+                property.price,
+
+              currency:
+                property.currency,
+
+              description:
+                property.description,
+
+              ownerName:
+                property.ownerName,
+
+              ownerPhone:
+                property.ownerPhone,
+
+              source:
+                "Global Estates"
+
+            }
+
+          })
+
+        }
+      );
+
+
+      const data =
+        await response.json();
+
+
+      if (!response.ok || !data.status) {
+
+        throw new Error(
+          data.error ||
+          "Paystack could not start the payment."
+        );
+
+      }
+
+
+      if (!data.authorization_url) {
+
+        throw new Error(
+          "Paystack checkout URL was not returned."
+        );
+
+      }
+
+
+      /* Send client directly to Paystack */
+
+      window.location.href =
+        data.authorization_url;
+
+
+    } catch (error) {
+
+      console.error(
+        "Paystack error:",
+        error
+      );
+
+      message.innerHTML =
+        '<div class="alert alert-error">' +
+        'Payment could not be started: ' +
+        error.message +
+        '</div>';
+
+      button.disabled = false;
+
+      button.textContent =
+        "Continue to Paystack";
+
+    }
+
   });
 
 });
 
-
-async function payWithPaystack(amount, planName) {
-
-  const propertyText =
-    localStorage.getItem("globalEstatesProperty");
-
-  if (!propertyText) {
-    alert("Please complete your property details first.");
-    return;
-  }
-
-  const property = JSON.parse(propertyText);
-
-  const email = property.ownerEmail;
-
-  if (!email) {
-    alert("Please enter your email address first.");
-    return;
-  }
-
-  const buttons = document.querySelectorAll(
-    "#planCards button"
-  );
-
-  buttons.forEach(function(button) {
-    button.disabled = true;
-  });
-
-  try {
-
-    const response = await fetch(
-      "/api/paystack/initialize",
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify({
-          email: email,
-          amount: amount,
-
-          metadata: {
-            plan: planName,
-            propertyTitle: property.title,
-            propertyLocation: property.location,
-            country: property.country,
-            propertyType: property.propertyType,
-            purpose: property.purpose,
-            ownerName: property.ownerName,
-            ownerPhone: property.ownerPhone,
-            source: "Global Estates"
-          }
-        })
-      }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok || !data.status) {
-      throw new Error(
-        data.error || "Unable to start Paystack payment."
-      );
-    }
-
-    if (!data.authorization_url) {
-      throw new Error(
-        "Paystack checkout URL was not returned."
-      );
-    }
-
-    window.location.href =
-      data.authorization_url;
-
-  } catch (error) {
-
-    console.error(
-      "Paystack payment error:",
-      error
-    );
-
-    alert(
-      "Payment could not be started: " +
-      error.message
-    );
-
-    buttons.forEach(function(button) {
-      button.disabled = false;
-    });
-  }
-}
 </script>
 
 </body>
