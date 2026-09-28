@@ -168,7 +168,43 @@
     <p>© 2026 Global Estates. All rights reserved.</p>
   </div>
 </footer>
+<script>
+async function payWithPaystack(amount, planName) {
+  const email = prompt("Enter your email address:");
 
+  if (!email) return;
+
+  try {
+    const response = await fetch("/api/paystack/initialize", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email: email,
+        amount: amount,
+        metadata: {
+          plan: planName,
+          source: "Global Estates"
+        }
+      })
+    });
+
+    const data = await response.json();
+
+    if (!data.status) {
+      alert(data.error || "Unable to start payment.");
+      return;
+    }
+
+    window.location.href = data.authorization_url;
+
+  } catch (error) {
+    console.error(error);
+    alert("Payment could not be started. Please try again.");
+  }
+}
+</script>
 <script src="/app.js"></script>
 
 <script>
