@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Successful | Global Estates</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0b0f0d;
+      color: white;
+      display: flex;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      max-width: 520px;
+      margin: 20px;
+      padding: 35px;
+      border-radius: 20px;
+      background: #141a17;
+      text-align: center;
+    }
+
+    .icon {
+      font-size: 60px;
+      color: #55d98a;
+    }
+
+    h1 {
+      color: #55d98a;
+    }
+
+    p {
+      color: #c9d3cd;
+      line-height: 1.6;
+    }
+
+    .ref {
+      margin: 20px 0;
+      padding: 14px;
+      background: #0b0f0d;
+      border-radius: 10px;
+      word-break: break-all;
+      color: #d9b65d;
+    }
+
+    a {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 12px 22px;
+      border-radius: 10px;
+      background: #d9b65d;
+      color: #111;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <div class="icon">✓</div>
+
+    <h1>Payment Received</h1>
+
+    <p>
+      Thank you. Your payment has been received by Global Estates.
+    </p>
+
+    <div class="ref" id="reference">
+      Checking transaction reference...
+    </div>
+
+    <p id="status">
+      Your payment is being verified. Please keep this page open.
+    </p>
+
+    <a href="/">Return to Global Estates</a>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const reference = params.get("reference");
+
+    const refEl = document.getElementById("reference");
+    const statusEl = document.getElementById("status");
+
+    if (reference) {
+      refEl.textContent = "Reference: " + reference;
+      statusEl.textContent =
+        "Payment reference received. Your transaction can now be verified by the server.";
+    } else {
+      refEl.textContent = "No transaction reference found.";
+      statusEl.textContent =
+        "Please return to Global Estates and try the payment again.";
+    }
+  </script>
+</body>
+</html>
