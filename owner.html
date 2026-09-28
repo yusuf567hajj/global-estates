@@ -170,7 +170,6 @@
 
 <script src="/app.js"></script>
 
-
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -211,75 +210,65 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
 
-  // FEATURED / PREMIUM PAYMENT
   document.querySelectorAll("[data-plan]").forEach(function (button) {
 
     button.addEventListener("click", async function () {
 
-      const propertyData =
-        localStorage.getItem("globalEstatesProperty");
+      alert("Button is working. Starting payment...");
 
-      if (!propertyData) {
-        alert("Please enter and continue with your property details first.");
+      const property = localStorage.getItem("globalEstatesProperty");
+
+      if (!property) {
+        alert("Please complete the property details first.");
         return;
       }
 
       const plan = button.getAttribute("data-plan");
+      const listingId = "GE-" + Date.now();
 
       button.disabled = true;
       button.textContent = "Opening Stripe...";
 
       try {
 
-        const listingId =
-          "GE-" + Date.now();
-
-        const response = await fetch(
-          "/api/create-checkout-session",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              plan: plan,
-              listingId: listingId
-            })
-          }
-        );
+        const response = await fetch("/api/create-checkout-session", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            plan: plan,
+            listingId: listingId
+          })
+        });
 
         const data = await response.json();
 
         if (!response.ok) {
           throw new Error(
-            data.message || data.error || "Payment request failed."
+            data.message || data.error || "Payment request failed"
           );
         }
 
         if (!data.url) {
-          throw new Error("Stripe Checkout URL was not returned.");
+          throw new Error("Stripe Checkout URL was not returned");
         }
 
         window.location.href = data.url;
 
       } catch (error) {
 
-        console.error("Stripe error:", error);
+        console.error(error);
 
-        alert(
-          "Payment could not start: " + error.message
-        );
+        alert("Payment error: " + error.message);
 
         button.disabled = false;
-
         button.textContent =
           plan === "featured"
             ? "Choose Featured"
             : "Choose Premium";
       }
-
     });
-
   });
 
 });
