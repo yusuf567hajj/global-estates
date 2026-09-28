@@ -170,6 +170,7 @@
 
 <script src="/app.js"></script>
 
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -179,7 +180,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const planCards = document.getElementById("planCards");
 
   form.addEventListener("submit", function (event) {
-
     event.preventDefault();
 
     const property = {
@@ -207,8 +207,77 @@ document.addEventListener("DOMContentLoaded", function () {
     plans.style.display = "block";
     planCards.style.display = "grid";
 
-    plans.scrollIntoView({
-      behavior: "smooth"
+    plans.scrollIntoView({ behavior: "smooth" });
+  });
+
+
+  // FEATURED / PREMIUM PAYMENT
+  document.querySelectorAll("[data-plan]").forEach(function (button) {
+
+    button.addEventListener("click", async function () {
+
+      const propertyData =
+        localStorage.getItem("globalEstatesProperty");
+
+      if (!propertyData) {
+        alert("Please enter and continue with your property details first.");
+        return;
+      }
+
+      const plan = button.getAttribute("data-plan");
+
+      button.disabled = true;
+      button.textContent = "Opening Stripe...";
+
+      try {
+
+        const listingId =
+          "GE-" + Date.now();
+
+        const response = await fetch(
+          "/api/create-checkout-session",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              plan: plan,
+              listingId: listingId
+            })
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message || data.error || "Payment request failed."
+          );
+        }
+
+        if (!data.url) {
+          throw new Error("Stripe Checkout URL was not returned.");
+        }
+
+        window.location.href = data.url;
+
+      } catch (error) {
+
+        console.error("Stripe error:", error);
+
+        alert(
+          "Payment could not start: " + error.message
+        );
+
+        button.disabled = false;
+
+        button.textContent =
+          plan === "featured"
+            ? "Choose Featured"
+            : "Choose Premium";
+      }
+
     });
 
   });
