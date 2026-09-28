@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>List Your Property | Global Estates</title>
+
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+
+<header>
+  <nav class="navbar">
+
+    <a href="/" class="logo">
+      Global <span>Estates</span>
+    </a>
+
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/properties.html">Properties</a>
+      <a href="/owner.html">List Property</a>
+    </div>
+
+  </nav>
+</header>
+
+<main class="container">
+
+  <div class="section-title">
+    <h1>List Your Property</h1>
+
+    <p>
+      Reach customers around the world through Global Estates.
+    </p>
+  </div>
+
+  <div class="form-card">
+
+    <h2>Property Details</h2>
+
+    <form id="propertyForm">
+
+      <div class="form-group mb-20">
+        <label for="title">
+          Property title
+        </label>
+
+        <input
+          id="title"
+          name="title"
+          type="text"
+          placeholder="e.g. Modern 3 Bedroom House"
+          required
+        >
+      </div>
+
+      <div class="form-row">
+
+        <div class="form-group">
+
+          <label for="location">
+            Location
+          </label>
+
+          <input
+            id="location"
+            name="location"
+            type="text"
+            placeholder="City / Town"
+            required
+          >
+
+        </div>
+
+        <div class="form-group">
+
+          <label for="country">
+            Country
+          </label>
+
+          <input
+            id="country"
+            name="country"
+            type="text"
+            placeholder="e.g. Kenya"
+            required
+          >
+
+        </div>
+
+      </div>
+
+      <div class="form-row">
+
+        <div class="form-group">
+
+          <label for="propertyType">
+            Property type
+          </label>
+
+          <select
+            id="propertyType"
+            name="propertyType"
+            required
+          >
+            <option value="">Select type</option>
+            <option value="house">House</option>
+            <option value="apartment">Apartment</option>
+            <option value="villa">Villa</option>
+            <option value="land">Land</option>
+            <option value="commercial">Commercial Property</option>
+            <option value="vacation">Vacation Stay</option>
+            <option value="outing">Outing</option>
+          </select>
+
+        </div>
+
+        <div class="form-group">
+
+          <label for="purpose">
+            Listing purpose
+          </label>
+
+          <select
+            id="purpose"
+            name="purpose"
+            required
+          >
+            <option value="">Select purpose</option>
+            <option value="rent">For Rent</option>
+            <option value="sale">For Sale</option>
+            <option value="vacation">Vacation</option>
+            <option value="outing">Outing</option>
+          </select>
+
+        </div>
+
+      </div>
+
+      <div class="form-row">
+
+        <div class="form-group">
+
+          <label for="price">
+            Price
+          </label>
+
+          <input
+            id="price"
+            name="price"
+            type="number"
+            min="0"
+            placeholder="Enter price"
+            required
+          >
+
+        </div>
+
+        <div class="form-group">
+
+          <label for="currency">
+            Currency
+          </label>
+
+          <select
+            id="currency"
+            name="currency"
+          >
+            <option value="KES">KES</option>
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+            <option value="GBP">GBP</option>
+          </select>
+
+        </div>
+
+      </div>
+
+      <div class="form-group mb-20">
+
+        <label for="description">
+          Property description
+        </label>
+
+        <textarea
+          id="description"
+          name="description"
+          rows="5"
+          placeholder="Describe the property..."
+          required
+        ></textarea>
+
+      </div>
+
+      <div class="form-row">
+
+        <div class="form-group">
+
+          <label for="ownerName">
+            Owner name
+          </label>
+
+          <input
+            id="ownerName"
+            name="ownerName"
+            type="text"
+            required
+          >
+
+        </div>
+
+        <div class="form-group">
+
+          <label for="ownerEmail">
+            Owner email
+          </label>
+
+          <input
+            id="ownerEmail"
+            name="ownerEmail"
+            type="email"
+            required
+          >
+
+        </div>
+
+      </div>
+
+      <div class="form-group mb-20">
+
+        <label for="ownerPhone">
+          WhatsApp / Phone
+        </label>
+
+        <input
+          id="ownerPhone"
+          name="ownerPhone"
+          type="tel"
+          placeholder="+254..."
+          required
+        >
+
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary"
+      >
+        Continue
+      </button>
+
+    </form>
+
+  </div>
+
+  <section class="container">
+
+    <div class="section-title">
+      <h2>Choose a Listing Plan</h2>
+
+      <p>
+        Select how you want your property promoted.
+      </p>
+    </div>
+
+    <div class="property-grid">
+
+      <!-- Featured -->
+
+      <div class="property-card">
+
+        <div class="property-content">
+
+          <span class="badge badge-featured">
+            FEATURED
+          </span>
+
+          <h3>Featured Listing</h3>
+
+          <p>
+            Give your property additional visibility
+            across Global Estates.
+          </p>
+
+          <div class="property-price">
+            KES 1,000
+          </div>
+
+          <button
+            class="btn btn-primary plan-button"
+            data-plan="featured"
+          >
+            Choose Featured
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- Premium -->
+
+      <div class="property-card">
+
+        <div class="
