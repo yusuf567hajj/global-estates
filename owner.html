@@ -131,32 +131,33 @@
   </div>
 
   <div id="planCards" class="property-grid" style="display:none;">
+<div class="card">
+  <h2>Featured</h2>
+  <h3>KES 1,000</h3>
+  <p>Promote your property as a Featured listing.</p>
 
-    <div class="card">
-      <h2>Featured</h2>
-      <h3>KES 1,000</h3>
-      <p>Promote your property as a Featured listing.</p>
+  <button
+    type="button"
+    class="btn btn-primary"
+    data-plan="featured"
+    onclick="payWithPaystack(1000, 'Featured')">
+    Choose Featured
+  </button>
+</div>
 
-      <button
-        type="button"
-        class="btn btn-primary"
-        data-plan="featured">
-        Choose Featured
-      </button>
-    </div>
+<div class="card">
+  <h2>Premium</h2>
+  <h3>KES 2,500</h3>
+  <p>Give your property Premium visibility.</p>
 
-    <div class="card">
-      <h2>Premium</h2>
-      <h3>KES 2,500</h3>
-      <p>Give your property Premium visibility.</p>
-
-      <button
-        type="button"
-        class="btn btn-secondary"
-        data-plan="premium">
-        Choose Premium
-      </button>
-    </div>
+  <button
+    type="button"
+    class="btn btn-secondary"
+    data-plan="premium"
+    onclick="payWithPaystack(2500, 'Premium')">
+    Choose Premium
+  </button>
+</div>
 
   </div>
 
