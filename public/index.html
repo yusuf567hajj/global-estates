@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Global Estates | Property & Vacation Marketplace</title>
+
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+
+<header class="navbar">
+
+  <div class="logo">
+    <span>GLOBAL</span> ESTATES
+  </div>
+
+  <nav>
+    <a href="#properties">Properties</a>
+    <a href="#vacations">Vacations</a>
+    <a href="#owners">List Property</a>
+    <button onclick="openLogin()">Login</button>
+  </nav>
+
+</header>
+
+
+<section class="hero">
+
+  <div class="hero-content">
+
+    <p class="eyebrow">PROPERTY • LAND • VACATIONS</p>
+
+    <h1>
+      Find a place to
+      <span>call yours.</span>
+    </h1>
+
+    <p>
+      Discover homes, apartments, land and vacation properties
+      from locations around the world.
+    </p>
+
+    <div class="search-box">
+
+      <input
+        id="searchInput"
+        type="text"
+        placeholder="Search location or property..."
+      >
+
+      <select id="typeFilter">
+        <option value="">All property types</option>
+        <option value="Apartment">Apartment</option>
+        <option value="House">House</option>
+        <option value="Vacation Villa">Vacation Villa</option>
+      </select>
+
+      <button onclick="searchProperties()">
+        Search
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<section id="properties" class="section">
+
+  <div class="section-heading">
+
+    <div>
+      <p class="eyebrow">DISCOVER</p>
+
+      <h2>Featured Properties</h2>
+    </div>
+
+    <button class="outline-btn" onclick="loadProperties()">
+      View all
+    </button>
+
+  </div>
+
+  <div id="propertyGrid" class="property-grid"></div>
+
+</section>
+
+
+<section id="vacations" class="vacation-section">
+
+  <div>
+
+    <p class="eyebrow">TRAVEL WITH GLOBAL ESTATES</p>
+
+    <h2>Book your next getaway.</h2>
+
+    <p>
+      Find vacation villas, apartments and unique stays
+      for your next trip.
+    </p>
+
+    <button onclick="scrollToProperties()">
+      Explore stays
+    </button>
+
+  </div>
+
+</section>
+
+
+<section id="owners" class="owner-section">
+
+  <div>
+
+    <p class="eyebrow">FOR PROPERTY OWNERS</p>
+
+    <h2>Turn your property into income.</h2>
+
+    <p>
+      List your property on Global Estates and reach customers
+      searching for homes, land and vacation stays.
+    </p>
+
+    <button onclick="openOwnerForm()">
+      List your property
+    </button>
+
+  </div>
+
+</section>
+
+
+<footer>
+
+  <div class="logo">
+    <span>GLOBAL</span> ESTATES
+  </div>
+
+  <p>
+    Property. Land. Vacations. One global marketplace.
+  </p>
+
+  <p>
+    © 2026 Global Estates
+  </p>
+
+</footer>
+
+
+<div id="modal" class="modal">
+
+  <div class="modal-content">
+
+    <button class="close" onclick="closeModal()">×</button>
+
+    <div id="modalContent"></div>
+
+  </div>
+
+</div>
+
+
+<script src="/app.js"></script>
+
+</body>
+</html>
