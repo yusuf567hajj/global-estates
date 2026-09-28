@@ -13,7 +13,47 @@ const stripe = process.env.STRIPE_SECRET_KEY
   : null;
 
 app.use(cors());
+// Paystack webhook
+app.post(
+  "/api/paystack/webhook",
+  express.raw({ type: "application/json" }),
+  (req, res) => {
+    try {
+      const crypto = require("crypto");
+      const secretKey = process.env.PAYSTACK_SECRET_KEY;
+      const signature = req.headers["x-paystack-signature"];
 
+      if (!secretKey || !signature) {
+        return res.status(401).json({ received: false });
+      }
+
+      const expectedSignature = crypto
+        .createHmac("sha512", secretKey)
+        .update(req.body)
+        .digest("hex");
+
+      if (signature !== expectedSignature) {
+        return res.status(401).json({ received: false });
+      }
+
+      const event = JSON.parse(req.body.toString("utf8"));
+
+      console.log("Paystack event:", event.event);
+
+      if (event.event === "charge.success") {
+        console.log(
+          "Paystack payment successful:",
+          event.data?.reference
+        );
+      }
+
+      res.sendStatus(200);
+    } catch (error) {
+      console.error("Paystack webhook error:", error.message);
+      res.sendStatus(400);
+    }
+  }
+);
 // Stripe webhook needs the raw request body.
 // Keep this route BEFORE express.json().
 app.post(
