@@ -77,9 +77,9 @@
       </div>
 
       <div class="form-group">
-        <label for="price">Price</label>
+        <label for="price">Property Price</label>
         <input id="price" type="number" min="0" required
-          placeholder="Enter price">
+          placeholder="Enter property price">
       </div>
 
       <div class="form-group">
@@ -107,7 +107,8 @@
 
       <div class="form-group">
         <label for="ownerEmail">Email</label>
-        <input id="ownerEmail" type="email" required>
+        <input id="ownerEmail" type="email" required
+          placeholder="you@example.com">
       </div>
 
       <div class="form-group">
@@ -116,48 +117,47 @@
       </div>
 
       <button type="submit" class="btn btn-primary">
-        Continue
+        Continue to Listing Plans
       </button>
 
     </form>
 
     <div id="propertyMessage"></div>
 
-  
+  </div>
 
   <div id="plans" class="section-heading" style="display:none;">
     <h2>Choose Listing Plan</h2>
-    <p>Select a plan to continue to secure Stripe Checkout.</p>
+    <p>Select a plan and continue securely with Paystack.</p>
   </div>
 
   <div id="planCards" class="property-grid" style="display:none;">
-<div class="card">
-  <h2>Featured</h2>
-  <h3>KES 1,000</h3>
-  <p>Promote your property as a Featured listing.</p>
 
-  <button
-    type="button"
-    class="btn btn-primary"
-    data-plan="featured"
-    onclick="payWithPaystack(1000, 'Featured')">
-    Choose Featured
-  </button>
-</div>
+    <div class="card">
+      <h2>Featured</h2>
+      <h3>KES 1,000</h3>
+      <p>Promote your property as a Featured listing.</p>
 
-<div class="card">
-  <h2>Premium</h2>
-  <h3>KES 2,500</h3>
-  <p>Give your property Premium visibility.</p>
+      <button
+        type="button"
+        class="btn btn-primary"
+        onclick="payWithPaystack(1000, 'Featured')">
+        Choose Featured
+      </button>
+    </div>
 
-  <button
-    type="button"
-    class="btn btn-secondary"
-    data-plan="premium"
-    onclick="payWithPaystack(2500, 'Premium')">
-    Choose Premium
-  </button>
-</div>
+    <div class="card">
+      <h2>Premium</h2>
+      <h3>KES 2,500</h3>
+      <p>Give your property Premium visibility.</p>
+
+      <button
+        type="button"
+        class="btn btn-secondary"
+        onclick="payWithPaystack(2500, 'Premium')">
+        Choose Premium
+      </button>
+    </div>
 
   </div>
 
@@ -168,44 +168,6 @@
     <p>© 2026 Global Estates. All rights reserved.</p>
   </div>
 </footer>
-<script>
-async function payWithPaystack(amount, planName) {
-  const email = prompt("Enter your email address:");
-
-  if (!email) return;
-
-  try {
-    const response = await fetch("/api/paystack/initialize", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        email: email,
-        amount: amount,
-        metadata: {
-          plan: planName,
-          source: "Global Estates"
-        }
-      })
-    });
-
-    const data = await response.json();
-
-    if (!data.status) {
-      alert(data.error || "Unable to start payment.");
-      return;
-    }
-
-    window.location.href = data.authorization_url;
-
-  } catch (error) {
-    console.error(error);
-    alert("Payment could not be started. Please try again.");
-  }
-}
-</script>
-<script src="/app.js"></script>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -238,7 +200,7 @@ document.addEventListener("DOMContentLoaded", function () {
     );
 
     message.innerHTML =
-      '<div class="alert alert-success">Details saved. Choose a listing plan below.</div>';
+      '<div class="alert alert-success">Property details saved. Choose your listing plan below.</div>';
 
     plans.style.display = "block";
     planCards.style.display = "grid";
@@ -246,106 +208,101 @@ document.addEventListener("DOMContentLoaded", function () {
     plans.scrollIntoView({ behavior: "smooth" });
   });
 
+});
 
-  document.querySelectorAll("[data-plan]").forEach(function (button) {
 
-    button.addEventListener("click", async function () {
+async function payWithPaystack(amount, planName) {
 
-      alert("Button is working. Starting payment...");
+  const propertyText =
+    localStorage.getItem("globalEstatesProperty");
 
-      const property = localStorage.getItem("globalEstatesProperty");
+  if (!propertyText) {
+    alert("Please complete your property details first.");
+    return;
+  }
 
-      if (!property) {
-        alert("Please complete the property details first.");
-        return;
-      }
+  const property = JSON.parse(propertyText);
 
-      const plan = button.getAttribute("data-plan");
-      const listingId = "GE-" + Date.now();
+  const email = property.ownerEmail;
 
-      button.disabled = true;
-      button.textContent = "Opening Stripe...";
+  if (!email) {
+    alert("Please enter your email address first.");
+    return;
+  }
 
-      try {
+  const buttons = document.querySelectorAll(
+    "#planCards button"
+  );
 
-        const response = await fetch("/api/create-checkout-session", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            plan: plan,
-            listingId: listingId
-          })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            data.message || data.error || "Payment request failed"
-          );
-        }
-
-        if (!data.url) {
-          throw new Error("Stripe Checkout URL was not returned");
-        }
-
-        window.location.href = data.url;
-
-      } catch (error) {
-
-        console.error(error);
-
-        alert("Payment error: " + error.message);
-
-        button.disabled = false;
-        button.textContent =
-          plan === "featured"
-            ? "Choose Featured"
-            : "Choose Premium";
-      }
-    });
+  buttons.forEach(function(button) {
+    button.disabled = true;
   });
 
-});
-</script>
-<script>
-async function payWithPaystack(amount, planName) {
-  const email = prompt("Enter your email address:");
-
-  if (!email) return;
-
   try {
-    const response = await fetch("/api/paystack/initialize", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        email: email,
-        amount: amount,
-        metadata: {
-          plan: planName,
-          source: "Global Estates"
-        }
-      })
-    });
+
+    const response = await fetch(
+      "/api/paystack/initialize",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+          email: email,
+          amount: amount,
+
+          metadata: {
+            plan: planName,
+            propertyTitle: property.title,
+            propertyLocation: property.location,
+            country: property.country,
+            propertyType: property.propertyType,
+            purpose: property.purpose,
+            ownerName: property.ownerName,
+            ownerPhone: property.ownerPhone,
+            source: "Global Estates"
+          }
+        })
+      }
+    );
 
     const data = await response.json();
 
-    if (!data.status) {
-      alert(data.error || "Unable to start payment.");
-      return;
+    if (!response.ok || !data.status) {
+      throw new Error(
+        data.error || "Unable to start Paystack payment."
+      );
     }
 
-    window.location.href = data.authorization_url;
+    if (!data.authorization_url) {
+      throw new Error(
+        "Paystack checkout URL was not returned."
+      );
+    }
+
+    window.location.href =
+      data.authorization_url;
 
   } catch (error) {
-    console.error(error);
-    alert("Payment could not be started. Please try again.");
+
+    console.error(
+      "Paystack payment error:",
+      error
+    );
+
+    alert(
+      "Payment could not be started: " +
+      error.message
+    );
+
+    buttons.forEach(function(button) {
+      button.disabled = false;
+    });
   }
 }
 </script>
+
 </body>
 </html>
