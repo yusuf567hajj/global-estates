@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Payment Cancelled | Global Estates</title>
+
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+
+  <header>
+    <nav class="navbar">
+      <a href="/" class="logo">
+        Global <span>Estates</span>
+      </a>
+
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/properties.html">Properties</a>
+        <a href="/owner.html">List Property</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <div class="form-card text-center">
+
+      <div style="font-size:60px; margin-bottom:15px;">
+        !
+      </div>
+
+      <h1>Payment Cancelled</h1>
+
+      <p style="margin:15px 0;">
+        Your Stripe payment was cancelled or was not completed.
+      </p>
+
+      <div class="alert alert-info">
+        No completed payment was recorded for this checkout.
+      </div>
+
+      <div style="
+        display:flex;
+        gap:10px;
+        justify-content:center;
+        flex-wrap:wrap;
+        margin-top:25px;
+      ">
+
+        <button
+          class="btn btn-primary"
+          onclick="window.history.back()"
+        >
+          Try Again
+        </button>
+
+        <a
+          href="/"
+          class="btn btn-outline"
+        >
+          Return Home
+        </a>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer>
+
+    <div class="footer-content">
+
+      <div>
+        <h3>Global Estates</h3>
+
+        <p>
+          Find homes, vacation stays, outings and land
+          around the world.
+        </p>
+      </div>
+
+      <div>
+        <h4>Explore</h4>
+
+        <a href="/">
+          Home
+        </a>
+
+        <a href="/properties.html">
+          Properties
+        </a>
+      </div>
+
+      <div>
+        <h4>Owners</h4>
+
+        <a href="/owner.html">
+          List Property
+        </a>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      © 2026 Global Estates. All rights reserved.
+    </div>
+
+  </footer>
+
+</body>
+</html>
