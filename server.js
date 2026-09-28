@@ -99,7 +99,60 @@ app.post(
     }
   }
 );
+// Paystack payment initialization
+app.post("/api/paystack/initialize", async (req, res) => {
+  try {
+    const { email, amount, reference, metadata } = req.body;
 
+    if (!email || !amount) {
+      return res.status(400).json({
+        error: "Email and amount are required"
+      });
+    }
+
+    const response = await fetch(
+      "https://api.paystack.co/transaction/initialize",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email,
+          amount: Math.round(Number(amount) * 100),
+          currency: "KES",
+          reference,
+          callback_url:
+            "https://global-estates.onrender.com/payment-success.html",
+          metadata: metadata || {}
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.status) {
+      console.error("Paystack error:", data);
+      return res.status(400).json({
+        error: data.message || "Paystack initialization failed"
+      });
+    }
+
+    res.json({
+      status: true,
+      authorization_url: data.data.authorization_url,
+      access_code: data.data.access_code,
+      reference: data.data.reference
+    });
+
+  } catch (error) {
+    console.error("Paystack initialization error:", error);
+    res.status(500).json({
+      error: "Payment initialization failed"
+    });
+  }
+});
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
