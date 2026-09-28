@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: global-estates
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: STRIPE_SECRET_KEY
+        sync: false
+
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+
+      - key: APP_URL
+        sync: false
